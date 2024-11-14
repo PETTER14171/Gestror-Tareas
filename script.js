@@ -20,6 +20,7 @@ function addTask() {
         tag: tagSelect.value,
         completed: false,
         progress: 0,
+        position: { x: 50, y: 100 }, // posición inicial de cada tarea
     };
 
     tasks.push(task);
@@ -35,8 +36,11 @@ function renderTasks(filter = "all") {
         const taskItem = document.createElement("div");
         taskItem.classList.add("task-item", `priority-${task.priority}`);
         taskItem.setAttribute("draggable", true);
-        taskItem.style.top = "100px";
-        taskItem.style.left = "50px";
+
+        // Configura la posición de la tarea según sus coordenadas guardadas
+        taskItem.style.left = `${task.position.x}px`;
+        taskItem.style.top = `${task.position.y}px`;
+
         taskItem.innerHTML = `
             <h3>${task.title}</h3>
             <p>${task.description}</p>
@@ -51,20 +55,23 @@ function renderTasks(filter = "all") {
             <button onclick="deleteTask(${task.id})">Eliminar</button>
         `;
         taskContainer.appendChild(taskItem);
-        makeDraggable(taskItem);
+        makeDraggable(taskItem, task); // Pasa el objeto task para actualizar su posición
     });
     updateOverallProgress();
 }
 
-function makeDraggable(element) {
+function makeDraggable(element, task) {
     let offsetX, offsetY;
     element.addEventListener("dragstart", (e) => {
         offsetX = e.offsetX;
         offsetY = e.offsetY;
     });
     element.addEventListener("dragend", (e) => {
-        element.style.left = `${e.pageX - offsetX}px`;
-        element.style.top = `${e.pageY - offsetY}px`;
+        // Actualiza la posición en el objeto `task` para conservar la ubicación
+        task.position.x = e.pageX - offsetX;
+        task.position.y = e.pageY - offsetY;
+        element.style.left = `${task.position.x}px`;
+        element.style.top = `${task.position.y}px`;
     });
 }
 
