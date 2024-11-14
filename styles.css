@@ -42,15 +42,6 @@ body {
     gap: 10px;
 }
 
-.task-form input,
-.task-form select,
-.task-form button,
-.task-form textarea {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
 .task-container {
     position: relative;
     padding: 20px;
@@ -66,6 +57,7 @@ body {
     color: var(--text-color);
     border: 1px solid #ddd;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .priority-alta {

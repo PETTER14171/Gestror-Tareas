@@ -2,6 +2,15 @@ let tasks = [];
 const taskContainer = document.getElementById("task-container");
 const progressDisplay = document.getElementById("progress");
 
+// Verifica el tema en localStorage al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        document.getElementById("theme-toggle").checked = savedTheme === "dark";
+    }
+});
+
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 
 function addTask() {
@@ -127,5 +136,8 @@ function updateOverallProgress() {
 }
 
 function toggleTheme() {
-    document.documentElement.toggleAttribute("data-theme", "dark");
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
 }
