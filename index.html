@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="theme-switch">
+        <label>
+            <input type="checkbox" id="theme-toggle">
+            Tema oscuro
+        </label>
+    </div>
+
+    <div class="container">
+        <h1>Gestión de Tareas</h1>
+        <div class="task-form">
+            <input type="text" id="task-input" placeholder="Nueva tarea...">
+            <select id="priority-select">
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="baja">Baja</option>
+            </select>
+            <select id="tag-select">
+                <option value="Trabajo">Trabajo</option>
+                <option value="Personal">Personal</option>
+                <option value="Otros">Otros</option>
+            </select>
+            <button onclick="addTask()">Añadir Tarea</button>
+        </div>
+
+        <div class="filters">
+            <label for="filter-select">Filtrar por etiqueta:</label>
+            <select id="filter-select" onchange="filterTasks()">
+                <option value="all">Todas</option>
+                <option value="Trabajo">Trabajo</option>
+                <option value="Personal">Personal</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </div>
+
+        <ul id="task-list" class="task-list"></ul>
+        <p id="progress">Progreso: 0%</p>
+    </div>
+    
+</body>
+</html>

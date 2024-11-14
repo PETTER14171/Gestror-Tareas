@@ -1,0 +1,89 @@
+:root {
+    --primary-color: #333;
+    --background-color: #f9f9f9;
+    --text-color: #000;
+}
+
+[data-theme="dark"] {
+    --primary-color: #f1f1f1;
+    --background-color: #333;
+    --text-color: #fff;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    width: 400px;
+    padding: 20px;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+}
+
+.task-form {
+    display: flex;
+    gap: 10px;
+}
+
+.task-form input,
+.task-form select,
+.task-form button {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.task-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s;
+}
+
+.priority-alta {
+    border-left: 5px solid red;
+}
+
+.priority-media {
+    border-left: 5px solid orange;
+}
+
+.priority-baja {
+    border-left: 5px solid green;
+}
+
+.theme-switch {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
