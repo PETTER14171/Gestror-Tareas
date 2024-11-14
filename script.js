@@ -26,58 +26,69 @@ function addTask() {
     tasks.push(task);
     taskInput.value = "";
     taskDesc.value = "";
-    renderTasks();
-}
-
-function renderTasks(filter = "all") {
-    taskContainer.innerHTML = "";
-    const filteredTasks = tasks.filter(task => filter === "all" || task.tag === filter);
-    filteredTasks.forEach(task => {
-        const taskItem = document.createElement("div");
-        taskItem.classList.add("task-item", `priority-${task.priority}`);
-        taskItem.setAttribute("draggable", true);
-
-        // Configura la posición de la tarea según sus coordenadas guardadas
-        taskItem.style.left = `${task.position.x}px`;
-        taskItem.style.top = `${task.position.y}px`;
-
-        taskItem.innerHTML = `
-            <h3>${task.title}</h3>
-            <p>${task.description}</p>
-            <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
-            <div class="progress-bar">
-                <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
-            </div>
-            <input type="number" min="0" max="100" value="${task.progress}" 
-                   onchange="updateTaskProgress(${task.id}, this.value)" 
-                   placeholder="Progreso %" />
-            <button onclick="editTask(${task.id})">Editar</button>
-            <button onclick="deleteTask(${task.id})">Eliminar</button>
-        `;
-        taskContainer.appendChild(taskItem);
-        makeDraggable(taskItem, task); // Pasa el objeto task para actualizar su posición
-    });
+    renderTask(task); // Renderiza solo la nueva tarea
     updateOverallProgress();
 }
 
-function makeDraggable(element, task) {
-    let offsetX, offsetY;
-    element.addEventListener("dragstart", (e) => {
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
-    });
-    element.addEventListener("dragend", (e) => {
-        // Actualiza la posición en el objeto `task` para conservar la ubicación
-        task.position.x = e.pageX - offsetX;
-        task.position.y = e.pageY - offsetY;
+function renderTasks(filter = "all") {
+    taskContainer.innerHTML = ""; // Limpiar el contenedor una sola vez
+    tasks.filter(task => filter === "all" || task.tag === filter).forEach(task => renderTask(task));
+}
+
+function renderTask(task) {
+    let taskItem = document.getElementById(`task-${task.id}`);
+    if (!taskItem) {
+        taskItem = document.createElement("div");
+        taskItem.id = `task-${task.id}`;
+        taskItem.classList.add("task-item", `priority-${task.priority}`);
+        taskContainer.appendChild(taskItem);
+
+        // Añade eventos personalizados de arrastre
+        taskItem.addEventListener("mousedown", (e) => startDrag(e, taskItem, task));
+    }
+
+    // Actualiza contenido y posición de la tarea
+    taskItem.style.left = `${task.position.x}px`;
+    taskItem.style.top = `${task.position.y}px`;
+    taskItem.innerHTML = `
+        <h3>${task.title}</h3>
+        <p>${task.description}</p>
+        <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
+        <div class="progress-bar">
+            <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
+        </div>
+        <input type="number" min="0" max="100" value="${task.progress}" 
+               onchange="updateTaskProgress(${task.id}, this.value)" 
+               placeholder="Progreso %" />
+        <button onclick="editTask(${task.id})">Editar</button>
+        <button onclick="deleteTask(${task.id})">Eliminar</button>
+    `;
+}
+
+function startDrag(e, element, task) {
+    let offsetX = e.clientX - element.offsetLeft;
+    let offsetY = e.clientY - element.offsetTop;
+
+    function onMouseMove(e) {
+        task.position.x = e.clientX - offsetX;
+        task.position.y = e.clientY - offsetY;
         element.style.left = `${task.position.x}px`;
         element.style.top = `${task.position.y}px`;
-    });
+    }
+
+    function onMouseUp() {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
 }
 
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
-    renderTasks();
+    document.getElementById(`task-${id}`).remove();
+    updateOverallProgress();
 }
 
 function editTask(id) {
@@ -86,13 +97,14 @@ function editTask(id) {
     const newDescription = prompt("Edita la descripción de la tarea:", task.description);
     if (newTitle !== null) task.title = newTitle;
     if (newDescription !== null) task.description = newDescription;
-    renderTasks();
+    renderTask(task); // Actualiza solo la tarea editada
 }
 
 function toggleComplete(id) {
     const task = tasks.find(task => task.id === id);
     task.completed = !task.completed;
-    renderTasks();
+    renderTask(task); // Actualiza solo la tarea modificada
+    updateOverallProgress();
 }
 
 function filterTasks() {
@@ -104,7 +116,8 @@ function updateTaskProgress(id, value) {
     const task = tasks.find(task => task.id === id);
     task.progress = Math.min(100, Math.max(0, value));
     task.completed = task.progress === 100;
-    renderTasks();
+    renderTask(task); // Actualiza solo la tarea con progreso cambiado
+    updateOverallProgress();
 }
 
 function updateOverallProgress() {
