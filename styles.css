@@ -1,32 +1,67 @@
-:root {
-    --primary-color: #333;
-    --background-color: #f9f9f9;
-    --text-color: #000;
+/* Variables */
+
+:root{
+    --header-color-1:#004b6b;
+    --header-color-2:#5d3fd3;
+    --body-color-1: #f3e5f5;
+    --body-color-2: #fff9c4;
+    --body-color-3: #e0f2f1;
+    --body-color-4: #fff;
+    --body-color-5: #ddd;
+    --body-color-6: #ff6666;;
+    --body-color-7: #ffcc66;
+    --body-color-8: #66cc66;
+    --body-color-9: #e0e0e0;
+    --body-color-10: #333;
+    --body-color-11: #ffcccc;
+    --body-color-12: #ffe5cc;
+    --body-color-13: #ccffcc;
+    --body-color-14: #4caf50;
+    --body-color-15: #ffa1a1;
+    --body-color-16: #ffd0a4;
+    --body-color-17: #9ff59f;
+    --fuente-color-1: #fff;
+    --fuente-color-2: #000;
+    --fuente-1: 'Caveat';
+    --fuente-2: 'Edu AU VIC WA NT Pre';
+    --fuente-3: 'Geist Mono';
+    --fuente-4: 'PT Serif';
+
 }
 
 [data-theme="dark"] {
-    --primary-color: #f1f1f1;
-    --background-color: #333;
-    --text-color: #fff;
+    --header-color-1: #333a3f; /* Oscurece ligeramente el color del encabezado */
+    --header-color-2: #1b263b; /* Tonalidad más profunda para el encabezado */
+    --body-color-1: #121212; /* Fondo principal oscuro */
+    --body-color-2: #1e1e1e; /* Fondo secundario oscuro */
+    --body-color-3: #2d2d2d; /* Fondo de entradas */
+    --body-color-4: #333; /* Fondo para tareas */
+    --body-color-5: #444; /* Bordes y separadores */
+    --body-color-6: #ff4949; /* Fondo de prioridad alta */
+    --body-color-7: #ff9900; /* Fondo de prioridad media */
+    --body-color-8: #33cc33; /* Fondo de prioridad baja */
+    --body-color-9: #555; /* Fondo de otros contenedores */
+    --body-color-10: #ddd; /* Texto oscuro en modo oscuro */
+    --body-color-11: #ff6666; /* Fondo de tareas completadas (alta) */
+    --body-color-12: #ffb84d; /* Fondo de tareas completadas (media) */
+    --body-color-13: #4cd964; /* Fondo de tareas completadas (baja) */
+    --body-color-14: #81c784; /* Barra de progreso */
+    --body-color-15: #cf4545; /* Fondo de prioridad muy alta */
+    --body-color-16: #db8f1c; /* Fondo de prioridad media-alta */
+    --body-color-17: #319236; /* Fondo de prioridad baja-media */
+    --fuente-color-1: #ffffff; /* Texto claro */
+    --fuente-color-2: #e0e0e0; /* Texto en campos */
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    height: 100vh;
-    overflow: hidden;
-    transition: background-color 0.3s, color 0.3s;
-}
-
+/* Encabezado para la entrada de tareas */
 .header {
+    font-family: var(--fuente-4);
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: var(--primary-color);
-    color: var(--text-color);
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -35,54 +70,231 @@ body {
     z-index: 1;
 }
 
+body{
+    background-color: var(--body-color-1);
+}
+
 .task-form {
-    padding: 80px 20px 20px;
+    background-color: var(--header-color-1);
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding: 20px;
+    margin-top: 150px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.theme-switch{
+    margin-right: 80px;
+}
+
+.task-form input,
+.task-form select,
+.task-form button,
+.task-form textarea {
+    font-family: var(--fuente-3);
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--fuente-color-2);
+    font-size: 1rem;
+}
+
+.task-form select {
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    border: 1px solid var(--fuente-color-2);
+    padding: 8px;
+    font-family: var(--fuente-3);
+    cursor: pointer;
+}
+
+.task-form select option {
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+}
+
+.task-form select option:hover {
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    cursor: pointer;
+}
+
+.task-form button{
+    background-color: var(--body-color-2);
+}
+
+.task-form button:hover{
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    cursor: pointer;
+}
+
+/* Estilos para las columnas de prioridad */
 .task-container {
-    position: relative;
+    font-family: var(--fuente-4);
+    display: flex;
+    gap: 10px;
     padding: 20px;
-    margin-top: 80px;
+    margin-top: 20px;
+    height: calc(100vh - 120px);
+    overflow: auto;
+}
+
+.priority-column {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    overflow-y: auto;
+    border: 2px solid var(--body-color-5);
+}
+
+#column-alta {
+    background-color: var(--body-color-6);
+}
+
+#column-media {
+    background-color: var(--body-color-7); 
+}
+
+#column-baja {
+    background-color: var(--body-color-8);
+}
+
+.priority-column h2 {
+    text-align: center;
+    color: var(--body-color-4);
+    margin-bottom: 10px;
+}
+
+.task-item.completed {
+    background-color: var(--body-color-8);
+    opacity: 0.85;
+    pointer-events: all; 
 }
 
 .task-item {
-    position: absolute;
-    cursor: move;
     padding: 15px;
     border-radius: 5px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    border: 1px solid #ddd;
+    background-color: var(--body-color-4);
+    color: var(--body-color-10);
+    border: 1px solid var(--body-color-5);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s ease;
+    position: relative;
 }
 
 .priority-alta {
-    border-left: 5px solid red;
+    background-color: var(--body-color-11); 
 }
 
 .priority-media {
-    border-left: 5px solid orange;
+    background-color: var(--body-color-12); 
 }
 
 .priority-baja {
-    border-left: 5px solid green;
+    background-color: var(--body-color-13); 
+}
+
+.task-item h3 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.task-item p {
+    white-space: normal; 
+    overflow-wrap: break-word; 
+    margin: 5px 0;
+}
+
+/* Modal de edición */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s;
+}
+
+.modal-content {
+    background-color: var(--body-color-4);
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    text-align: center;
+}
+
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--body-color-10);
+}
+
+.modal.visible {
+    visibility: visible;
+    opacity: 1;
 }
 
 .progress-bar {
-    height: 8px;
     width: 100%;
-    background: #ddd;
-    border-radius: 4px;
-    margin-top: 5px;
+    height: 15px;
+    background-color: var(--body-color-5);
+    border-radius: 5px;
+    margin-top: 10px;
+    position: relative;
 }
 
 .progress-bar-inner {
     height: 100%;
-    width: 0%;
-    background-color: #4caf50;
-    border-radius: 4px;
+    background-color: var(--body-color-14);
+    border-radius: 5px;
+    transition: width 0.3s ease;
 }
+
+.progress-percentage {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--body-color-4);
+    font-size: 0.9rem;
+    line-height: 15px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+
+.priority-alta {
+    background-color: var(--body-color-15);
+    font-family: var(--fuente-2);
+}
+
+.priority-media {
+    background-color: var(--body-color-16);
+    font-family: var(--fuente-2);
+}
+
+.priority-baja {
+    background-color: var(--body-color-17);
+    font-family: var(--fuente-2);
+
+}
+

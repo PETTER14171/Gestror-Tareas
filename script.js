@@ -1,5 +1,6 @@
 let tasks = [];
-const taskContainer = document.getElementById("task-container");
+let editingTaskId = null;
+
 const progressDisplay = document.getElementById("progress");
 
 // Verifica el tema en localStorage al cargar la página
@@ -28,19 +29,28 @@ function addTask() {
         priority: prioritySelect.value,
         tag: tagSelect.value,
         completed: false,
-        progress: 0,
-        position: { x: 50, y: 100 }, // posición inicial de cada tarea
+        progress: 0
     };
 
     tasks.push(task);
     taskInput.value = "";
     taskDesc.value = "";
-    renderTask(task); // Renderiza solo la nueva tarea
+    renderTasks();
     updateOverallProgress();
+
+    // Alerta para tarea creada
+    Swal.fire({
+        title: "Tarea Agregada!",
+        text: "La tarea se agrego con exito pulsa ok para continuar!",
+        icon: "success"
+      });
 }
 
 function renderTasks(filter = "all") {
-    taskContainer.innerHTML = ""; // Limpiar el contenedor una sola vez
+    document.getElementById("column-alta").innerHTML = "<h2>Prioridad Alta</h2>";
+    document.getElementById("column-media").innerHTML = "<h2>Prioridad Media</h2>";
+    document.getElementById("column-baja").innerHTML = "<h2>Prioridad Baja</h2>";
+
     tasks.filter(task => filter === "all" || task.tag === filter).forEach(task => renderTask(task));
 }
 
@@ -50,75 +60,114 @@ function renderTask(task) {
         taskItem = document.createElement("div");
         taskItem.id = `task-${task.id}`;
         taskItem.classList.add("task-item", `priority-${task.priority}`);
-        taskContainer.appendChild(taskItem);
-
-        // Añade eventos personalizados de arrastre
-        taskItem.addEventListener("mousedown", (e) => startDrag(e, taskItem, task));
+        
+        taskItem.setAttribute("draggable", true);
+        taskItem.addEventListener("dragstart", (e) => onDragStart(e, task));
+        taskItem.addEventListener("dragover", (e) => onDragOver(e));
+        taskItem.addEventListener("drop", (e) => onDrop(e, task));
     }
 
-    // Actualiza contenido y posición de la tarea
-    taskItem.style.left = `${task.position.x}px`;
-    taskItem.style.top = `${task.position.y}px`;
+    taskItem.className = `task-item priority-${task.priority} ${task.completed ? "completed" : ""}`;
+
     taskItem.innerHTML = `
         <h3>${task.title}</h3>
         <p>${task.description}</p>
-        <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
-        <div class="progress-bar">
-            <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
-        </div>
+        <p><strong>Categoría:</strong> ${task.tag}</p>
+        <p><strong>Status:</strong> <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span></p>
         <input type="number" min="0" max="100" value="${task.progress}" 
                onchange="updateTaskProgress(${task.id}, this.value)" 
                placeholder="Progreso %" />
-        <button onclick="editTask(${task.id})">Editar</button>
+        <select onchange="updateTaskPriority(${task.id}, this.value)">
+            <option value="alta" ${task.priority === "alta" ? "selected" : ""}>Alta</option>
+            <option value="media" ${task.priority === "media" ? "selected" : ""}>Media</option>
+            <option value="baja" ${task.priority === "baja" ? "selected" : ""}>Baja</option>
+        </select>
+        <button onclick="openEditModal(${task.id})">Editar</button>
         <button onclick="deleteTask(${task.id})">Eliminar</button>
+        <div class="progress-bar">
+            <div class="progress-bar-inner" style="width: ${task.progress}%;">
+                <span class="progress-percentage">${task.progress}%</span>
+            </div>
+        </div>
     `;
-}
 
-function startDrag(e, element, task) {
-    let offsetX = e.clientX - element.offsetLeft;
-    let offsetY = e.clientY - element.offsetTop;
-
-    function onMouseMove(e) {
-        task.position.x = e.clientX - offsetX;
-        task.position.y = e.clientY - offsetY;
-        element.style.left = `${task.position.x}px`;
-        element.style.top = `${task.position.y}px`;
+    const column = document.getElementById(`column-${task.priority}`);
+    if (column) {
+        column.appendChild(taskItem);
     }
+}
 
-    function onMouseUp() {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
+// Funciones de arrastre para reordenar tareas
+let draggedTask = null;
+
+function onDragStart(e, task) {
+    draggedTask = task;
+    e.dataTransfer.effectAllowed = "move";
+}
+
+function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+}
+
+function onDrop(e, targetTask) {
+    e.preventDefault();
+    if (draggedTask && draggedTask.priority === targetTask.priority) {
+        const draggedIndex = tasks.findIndex(t => t.id === draggedTask.id);
+        const targetIndex = tasks.findIndex(t => t.id === targetTask.id);
+
+        tasks.splice(draggedIndex, 1);
+        tasks.splice(targetIndex, 0, draggedTask);
+
+        renderTasks(); // Vuelve a renderizar todas las tareas en el nuevo orden
+        draggedTask = null;
     }
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
 }
 
-function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-    document.getElementById(`task-${id}`).remove();
-    updateOverallProgress();
+function openEditModal(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        editingTaskId = id;
+        document.getElementById("edit-task-title").value = task.title;
+        document.getElementById("edit-task-desc").value = task.description;
+        document.getElementById("edit-priority-select").value = task.priority;
+        document.getElementById("edit-category-select").value = task.tag;
+
+        document.getElementById("edit-task-modal").classList.add("visible");
+    }
 }
 
-function editTask(id) {
-    const task = tasks.find(task => task.id === id);
-    const newTitle = prompt("Edita el título de la tarea:", task.title);
-    const newDescription = prompt("Edita la descripción de la tarea:", task.description);
-    if (newTitle !== null) task.title = newTitle;
-    if (newDescription !== null) task.description = newDescription;
-    renderTask(task); // Actualiza solo la tarea editada
+function closeEditModal() {
+    document.getElementById("edit-task-modal").classList.remove("visible");
+    editingTaskId = null;
 }
 
-function toggleComplete(id) {
-    const task = tasks.find(task => task.id === id);
-    task.completed = !task.completed;
-    renderTask(task); // Actualiza solo la tarea modificada
-    updateOverallProgress();
+function saveTaskChanges() {
+    const task = tasks.find(t => t.id === editingTaskId);
+    if (task) {
+        task.title = document.getElementById("edit-task-title").value;
+        task.description = document.getElementById("edit-task-desc").value;
+        task.priority = document.getElementById("edit-priority-select").value;
+        task.tag = document.getElementById("edit-category-select").value;
+        renderTasks();
+        updateOverallProgress();
+
+        // Alerta para tarea editada
+        Swal.fire({
+            title: "Tarea Editada!",
+            text: "La tarea se edito con exito pulsa ok para continuar!",
+            icon: "success"
+          });
+    }
+    closeEditModal();
 }
 
-function filterTasks() {
-    const filter = document.getElementById("filter-select").value;
-    renderTasks(filter);
+function updateTaskPriority(id, newPriority) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.priority = newPriority;
+        renderTasks(); // Re-renderiza todas las tareas para actualizar su posición
+    }
 }
 
 function updateTaskProgress(id, value) {
@@ -127,6 +176,77 @@ function updateTaskProgress(id, value) {
     task.completed = task.progress === 100;
     renderTask(task); // Actualiza solo la tarea con progreso cambiado
     updateOverallProgress();
+        // Muestra la alerta si la tarea está completa al cambiar el progreso
+        if (task.completed) {
+            Swal.fire({
+                title: "¡Felicidades! Completaste tu tarea.",
+                width: 600,
+                padding: "3em",
+                color: "#716add",
+                background: "#fff url(/img/Feliz1.png)",
+                backdrop: `
+                    rgba(0,0,123,0.4)
+                    url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
+                    left top
+                    no-repeat
+                `
+            });
+        }
+}
+
+function toggleComplete(id) {
+    const task = tasks.find(task => task.id === id);
+    task.completed = !task.completed;
+    renderTask(task); // Actualiza solo la tarea modificada
+    updateOverallProgress();
+    if (task.completed) {
+        // Alerta para tarea completada
+        Swal.fire({
+            title: "Felizidades Completaste tu tarea.",
+            width: 600,
+            padding: "3em",
+            color: "#716add",
+            background: "#fff url(img/Feliz1.png)",
+            backdrop: `
+              rgba(0,0,123,0.4)
+              url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
+              left top
+              no-repeat
+            `
+          });
+    }
+}
+
+function deleteTask(id) {
+    Swal.fire({
+        title: "¿Quieres eliminar la tarea?",
+        text: "Si eliminas esta tarea no podrás restaurarla",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminar!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.filter(task => task.id !== id);
+            const taskElement = document.getElementById(`task-${id}`);
+            if (taskElement) taskElement.remove();
+            updateOverallProgress();
+
+            Swal.fire({
+                title: "Eliminada!",
+                text: "La tarea se eliminó con éxito.",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+}
+
+function filterTasks() {
+    const filter = document.getElementById("filter-select").value;
+    renderTasks(filter);
 }
 
 function updateOverallProgress() {
@@ -134,6 +254,7 @@ function updateOverallProgress() {
     const overallProgress = tasks.length ? totalProgress / tasks.length : 0;
     progressDisplay.textContent = `Progreso general: ${overallProgress.toFixed(1)}%`;
 }
+
 
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute("data-theme");
