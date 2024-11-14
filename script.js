@@ -6,6 +6,7 @@ document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 
 function addTask() {
     const taskInput = document.getElementById("task-input");
+    const taskDesc = document.getElementById("task-desc");
     const prioritySelect = document.getElementById("priority-select");
     const tagSelect = document.getElementById("tag-select");
 
@@ -13,14 +14,17 @@ function addTask() {
 
     const task = {
         id: Date.now(),
-        text: taskInput.value,
+        title: taskInput.value,
+        description: taskDesc.value,
         priority: prioritySelect.value,
         tag: tagSelect.value,
         completed: false,
+        progress: 0,
     };
 
     tasks.push(task);
     taskInput.value = "";
+    taskDesc.value = "";
     renderTasks();
 }
 
@@ -33,15 +37,25 @@ function renderTasks(filter = "all") {
         if (task.completed) taskItem.classList.add("completed");
 
         taskItem.innerHTML = `
-            <span onclick="toggleComplete(${task.id})">${task.text}</span>
             <div>
+                <h3>${task.title}</h3>
+                <p>${task.description}</p>
+                <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
+                <div class="progress-bar">
+                    <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
+                </div>
+            </div>
+            <div>
+                <input type="number" min="0" max="100" value="${task.progress}" 
+                       onchange="updateTaskProgress(${task.id}, this.value)" 
+                       placeholder="Progreso %" />
                 <button onclick="editTask(${task.id})">Editar</button>
                 <button onclick="deleteTask(${task.id})">Eliminar</button>
             </div>
         `;
         taskList.appendChild(taskItem);
     });
-    updateProgress();
+    updateOverallProgress();
 }
 
 function deleteTask(id) {
@@ -51,11 +65,11 @@ function deleteTask(id) {
 
 function editTask(id) {
     const task = tasks.find(task => task.id === id);
-    const newText = prompt("Edita la tarea:", task.text);
-    if (newText !== null) {
-        task.text = newText;
-        renderTasks();
-    }
+    const newTitle = prompt("Edita el título de la tarea:", task.title);
+    const newDescription = prompt("Edita la descripción de la tarea:", task.description);
+    if (newTitle !== null) task.title = newTitle;
+    if (newDescription !== null) task.description = newDescription;
+    renderTasks();
 }
 
 function toggleComplete(id) {
@@ -69,11 +83,17 @@ function filterTasks() {
     renderTasks(filter);
 }
 
-function updateProgress() {
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.completed).length;
-    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-    progressDisplay.textContent = `Progreso: ${progress.toFixed(1)}%`;
+function updateTaskProgress(id, value) {
+    const task = tasks.find(task => task.id === id);
+    task.progress = Math.min(100, Math.max(0, value));
+    task.completed = task.progress === 100;
+    renderTasks();
+}
+
+function updateOverallProgress() {
+    const totalProgress = tasks.reduce((acc, task) => acc + task.progress, 0);
+    const overallProgress = tasks.length ? totalProgress / tasks.length : 0;
+    progressDisplay.textContent = `Progreso general: ${overallProgress.toFixed(1)}%`;
 }
 
 function toggleTheme() {
