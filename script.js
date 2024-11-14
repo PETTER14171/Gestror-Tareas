@@ -1,5 +1,5 @@
 let tasks = [];
-const taskList = document.getElementById("task-list");
+const taskContainer = document.getElementById("task-container");
 const progressDisplay = document.getElementById("progress");
 
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
@@ -29,33 +29,43 @@ function addTask() {
 }
 
 function renderTasks(filter = "all") {
-    taskList.innerHTML = "";
+    taskContainer.innerHTML = "";
     const filteredTasks = tasks.filter(task => filter === "all" || task.tag === filter);
     filteredTasks.forEach(task => {
-        const taskItem = document.createElement("li");
+        const taskItem = document.createElement("div");
         taskItem.classList.add("task-item", `priority-${task.priority}`);
-        if (task.completed) taskItem.classList.add("completed");
-
+        taskItem.setAttribute("draggable", true);
+        taskItem.style.top = "100px";
+        taskItem.style.left = "50px";
         taskItem.innerHTML = `
-            <div>
-                <h3>${task.title}</h3>
-                <p>${task.description}</p>
-                <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
-                <div class="progress-bar">
-                    <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
-                </div>
+            <h3>${task.title}</h3>
+            <p>${task.description}</p>
+            <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span>
+            <div class="progress-bar">
+                <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
             </div>
-            <div>
-                <input type="number" min="0" max="100" value="${task.progress}" 
-                       onchange="updateTaskProgress(${task.id}, this.value)" 
-                       placeholder="Progreso %" />
-                <button onclick="editTask(${task.id})">Editar</button>
-                <button onclick="deleteTask(${task.id})">Eliminar</button>
-            </div>
+            <input type="number" min="0" max="100" value="${task.progress}" 
+                   onchange="updateTaskProgress(${task.id}, this.value)" 
+                   placeholder="Progreso %" />
+            <button onclick="editTask(${task.id})">Editar</button>
+            <button onclick="deleteTask(${task.id})">Eliminar</button>
         `;
-        taskList.appendChild(taskItem);
+        taskContainer.appendChild(taskItem);
+        makeDraggable(taskItem);
     });
     updateOverallProgress();
+}
+
+function makeDraggable(element) {
+    let offsetX, offsetY;
+    element.addEventListener("dragstart", (e) => {
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+    });
+    element.addEventListener("dragend", (e) => {
+        element.style.left = `${e.pageX - offsetX}px`;
+        element.style.top = `${e.pageY - offsetY}px`;
+    });
 }
 
 function deleteTask(id) {

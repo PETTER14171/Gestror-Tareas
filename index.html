@@ -7,44 +7,44 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="theme-switch">
-        <label>
-            <input type="checkbox" id="theme-toggle">
-            Tema oscuro
-        </label>
-    </div>
-
-    <div class="container">
+    <div class="header">
         <h1>Gestión de Tareas</h1>
-        <div class="task-form">
-            <input type="text" id="task-input" placeholder="Título de la tarea...">
-            <textarea id="task-desc" placeholder="Descripción detallada..."></textarea>
-            <select id="priority-select">
-                <option value="alta">Alta</option>
-                <option value="media">Media</option>
-                <option value="baja">Baja</option>
-            </select>
-            <select id="tag-select">
-                <option value="Trabajo">Trabajo</option>
-                <option value="Personal">Personal</option>
-                <option value="Otros">Otros</option>
-            </select>
-            <button onclick="addTask()">Añadir Tarea</button>
-        </div>
-
-        <div class="filters">
-            <label for="filter-select">Filtrar por etiqueta:</label>
-            <select id="filter-select" onchange="filterTasks()">
-                <option value="all">Todas</option>
-                <option value="Trabajo">Trabajo</option>
-                <option value="Personal">Personal</option>
-                <option value="Otros">Otros</option>
-            </select>
-        </div>
-
-        <ul id="task-list" class="task-list"></ul>
         <p id="progress">Progreso general: 0%</p>
+        <div class="theme-switch">
+            <label>
+                <input type="checkbox" id="theme-toggle">
+                Tema oscuro
+            </label>
+        </div>
     </div>
+
+    <div class="task-form">
+        <input type="text" id="task-input" placeholder="Título de la tarea...">
+        <textarea id="task-desc" placeholder="Descripción detallada..."></textarea>
+        <select id="priority-select">
+            <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
+        </select>
+        <select id="tag-select">
+            <option value="Trabajo">Trabajo</option>
+            <option value="Personal">Personal</option>
+            <option value="Otros">Otros</option>
+        </select>
+        <button onclick="addTask()">Añadir Tarea</button>
+    </div>
+
+    <div class="filters">
+        <label for="filter-select">Filtrar por etiqueta:</label>
+        <select id="filter-select" onchange="filterTasks()">
+            <option value="all">Todas</option>
+            <option value="Trabajo">Trabajo</option>
+            <option value="Personal">Personal</option>
+            <option value="Otros">Otros</option>
+        </select>
+    </div>
+
+    <div id="task-container" class="task-container"></div>
     
     <script src="script.js"></script>
 </body>
