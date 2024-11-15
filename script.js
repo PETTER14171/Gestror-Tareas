@@ -37,6 +37,8 @@ function addTask() {
     };
 
     tasks.push(task);
+    saveTasksToLocalStorage(); // Guardar tarea en localStorage
+    
     taskInput.value = "";
     taskDesc.value = "";
     renderTasks();
@@ -181,54 +183,61 @@ function updateTaskPriority(id, newPriority) {
     const task = tasks.find(t => t.id === id);
     if (task) {
         task.priority = newPriority;
-        renderTasks(); // Re-renderiza todas las tareas para actualizar su posición
+        saveTasksToLocalStorage(); // Guarda el cambio de prioridad en localStorage
+        renderTasks();
     }
 }
+
 
 function updateTaskProgress(id, value) {
     const task = tasks.find(task => task.id === id);
     task.progress = Math.min(100, Math.max(0, value));
     task.completed = task.progress === 100;
-    renderTask(task); // Actualiza solo la tarea con progreso cambiado
+    
+    saveTasksToLocalStorage(); // Guarda el progreso actualizado en localStorage
+    renderTask(task);
     updateOverallProgress();
-        // Muestra la alerta si la tarea está completa al cambiar el progreso
-        if (task.completed) {
-            Swal.fire({
-                title: "¡Felicidades! Completaste tu tarea.",
-                width: 600,
-                padding: "3em",
-                color: "#716add",
-                background: "#fff url(/img/Feliz1.png)",
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
-                    left top
-                    no-repeat
-                `
-            });
-        }
+
+    if (task.completed) {
+        Swal.fire({
+            title: "¡Felicidades! Completaste tu tarea.",
+            width: 600,
+            padding: "3em",
+            color: "#716add",
+            background: "#fff url(/img/Feliz1.png)",
+            backdrop: `
+                rgba(0,0,123,0.4)
+                url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
+                left top
+                no-repeat
+            `
+        });
+    }
 }
 
 function toggleComplete(id) {
     const task = tasks.find(task => task.id === id);
     task.completed = !task.completed;
-    renderTask(task); // Actualiza solo la tarea modificada
+    task.progress = task.completed ? 100 : task.progress;
+
+    saveTasksToLocalStorage(); // Guarda el cambio de completado en localStorage
+    renderTask(task);
     updateOverallProgress();
+
     if (task.completed) {
-        // Alerta para tarea completada
         Swal.fire({
-            title: "Felizidades Completaste tu tarea.",
+            title: "¡Felicidades! Completaste tu tarea.",
             width: 600,
             padding: "3em",
             color: "#716add",
             background: "#fff url(img/Feliz1.png)",
             backdrop: `
-              rgba(0,0,123,0.4)
-              url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
-              left top
-              no-repeat
+                rgba(0,0,123,0.4)
+                url("https://media.tenor.com/9zmtHZ0tIjkAAAAj/nyancat-rainbow-cat.gif")
+                left top
+                no-repeat
             `
-          });
+        });
     }
 }
 
@@ -244,8 +253,8 @@ function deleteTask(id) {
     }).then((result) => {
         if (result.isConfirmed) {
             tasks = tasks.filter(task => task.id !== id);
-            const taskElement = document.getElementById(`task-${id}`);
-            if (taskElement) taskElement.remove();
+            saveTasksToLocalStorage(); // Guarda el cambio después de eliminar
+            renderTasks();
             updateOverallProgress();
 
             Swal.fire({
@@ -277,3 +286,6 @@ function toggleTheme() {
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
 }
+
+renderTasks();
+updateOverallProgress();
