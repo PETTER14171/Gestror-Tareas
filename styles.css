@@ -22,6 +22,7 @@
     --body-color-17: #9ff59f;
     --fuente-color-1: #fff;
     --fuente-color-2: #000;
+    --fuente-color-3: #fff;
     --fuente-1: 'Caveat';
     --fuente-2: 'Edu AU VIC WA NT Pre';
     --fuente-3: 'Geist Mono';
@@ -51,6 +52,7 @@
     --body-color-17: #319236; /* Fondo de prioridad baja-media */
     --fuente-color-1: #ffffff; /* Texto claro */
     --fuente-color-2: #e0e0e0; /* Texto en campos */
+    --fuente-color-3: #fff; /* Texto en close de editar para no tener cambio */
 }
 
 /* Encabezado para la entrada de tareas */
@@ -228,16 +230,63 @@ body{
 }
 
 .modal-content {
-    background-color: var(--body-color-4);
-    padding: 20px;
+    background-color: var(--header-color-1);
+    padding: 50px;
     border-radius: 8px;
-    width: 300px;
+    width: 500px;
     position: relative;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content h2 {
+    font-family: var(--fuente-4);
+    color: var(--fuente-color-1);
     text-align: center;
+}
+
+.modal-content input,
+.modal-content textarea, 
+.modal-content select,
+.modal-content button{
+    font-family: var(--fuente-3);
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    padding: 6px;
+    margin: 2.5px;
+    border-radius: 5px;
+    border: 1px solid var(--fuente-color-2);
+    font-size: 1rem;
+    width: 100%;
+}
+
+.modal-content select {
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    border: 1px solid var(--fuente-color-2);
+    padding: 8px;
+    font-family: var(--fuente-3);
+    cursor: pointer;
+}
+
+.modal-content select option {
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+}
+
+.modal-content select option:hover {
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    cursor: pointer;
+}
+
+.modal-content button{
+    background-color: var(--body-color-2);
+}
+
+.modal-content button:hover{
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    cursor: pointer;
 }
 
 .modal .close {
@@ -246,7 +295,7 @@ body{
     right: 10px;
     font-size: 1.2rem;
     cursor: pointer;
-    color: var(--body-color-10);
+    color: var(--fuente-color-3);
 }
 
 .modal.visible {
@@ -300,7 +349,7 @@ body{
 
 
 footer {
-    font-family: var(--fuente-3);
+    font-family: var(--fuente-4);
     background-color: var(--header-color-2);
     color: var(--fuente-color-1);
     text-align: center;
