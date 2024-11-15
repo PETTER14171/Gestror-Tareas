@@ -40,6 +40,8 @@
             <option value="Personal">Personal</option>
             <option value="Otros">Otros</option>
         </select>
+        <input type="time" id="reminder-time" class="task-form-input"/>
+        <input type="text" id="reminder-message" class="task-form-input" placeholder="Mensaje de la notificación" />
         <button onclick="addTask()">Añadir Tarea</button>
     </div>
 
@@ -72,6 +74,8 @@
                 <option value="Personal">Personal</option>
                 <option value="Otros">Otros</option>
             </select>
+            <input type="time" id="edit-reminder-time" class="task-form-input" />
+            <input type="text" id="edit-reminder-message" class="task-form-input" placeholder="Mensaje de la notificación" />
             <button onclick="saveTaskChanges()">Guardar Cambios</button>
         </div>
     </div>

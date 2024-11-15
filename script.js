@@ -12,10 +12,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+tasks.forEach(task => {
+    if (!task.completed && task.reminderTime) {
+        scheduleTaskReminder(task);
+    }
+});
+
+
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
 
 function saveTasksToLocalStorage() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function scheduleTaskReminder(task) {
+    const now = new Date();
+    const [hours, minutes] = task.reminderTime.split(":").map(Number);
+    const reminderDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+
+    const timeUntilReminder = reminderDate - now;
+
+    if (timeUntilReminder > 0) {
+        setTimeout(() => {
+            if (!task.completed) { // Solo muestra la notificación si la tarea no está completada
+                sendTaskNotification(task);
+            }
+        }, timeUntilReminder);
+    }
+}
+
+function sendTaskNotification(task) {
+    if (Notification.permission === 'granted') {
+        new Notification('Recordatorio de Tarea', {
+            body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
+            icon: 'img/icon.jpg' // Cambia a la ruta de tu ícono
+        });
+    }
 }
 
 function addTask() {
@@ -23,33 +55,49 @@ function addTask() {
     const taskDesc = document.getElementById("task-desc");
     const prioritySelect = document.getElementById("priority-select");
     const tagSelect = document.getElementById("tag-select");
+    const reminderTimeInput = document.getElementById("reminder-time");
+    const reminderMessageInput = document.getElementById("reminder-message");
 
-    if (taskInput.value === "") return;
+    if (taskInput.value === "") {
+        Swal.fire({
+            title: "Error",
+            text: "El título de la tarea es obligatorio.",
+            icon: "error"
+        });
+        return;
+    }
 
     const task = {
         id: Date.now(),
         title: taskInput.value,
-        description: taskDesc.value,
+        description: taskDesc.value || "Sin descripción", // Descripción opcional
         priority: prioritySelect.value,
         tag: tagSelect.value,
         completed: false,
-        progress: 0
+        progress: 0,
+        reminderTime: reminderTimeInput.value || null, // Hora opcional
+        reminderMessage: reminderMessageInput.value || null // Mensaje opcional
     };
 
     tasks.push(task);
-    saveTasksToLocalStorage(); // Guardar tarea en localStorage
-    
-    taskInput.value = "";
-    taskDesc.value = "";
+    saveTasksToLocalStorage();
     renderTasks();
     updateOverallProgress();
 
-    // Alerta para tarea creada
+    taskInput.value = "";
+    taskDesc.value = "";
+    reminderTimeInput.value = "";
+    reminderMessageInput.value = "";
+
     Swal.fire({
-        title: "Tarea Agregada!",
-        text: "La tarea se agrego con exito pulsa ok para continuar!",
+        title: "Tarea Agregada",
+        text: "La tarea se agregó con éxito.",
         icon: "success"
-      });
+    });
+
+    if (task.reminderTime) {
+        scheduleTaskReminder(task);
+    }
 }
 
 function renderTasks(filter = "all") {
@@ -134,14 +182,24 @@ function openEditModal(id) {
     const task = tasks.find(t => t.id === id);
     if (task) {
         editingTaskId = id;
+
+        // Inicializa los campos existentes
         document.getElementById("edit-task-title").value = task.title;
         document.getElementById("edit-task-desc").value = task.description;
         document.getElementById("edit-priority-select").value = task.priority;
         document.getElementById("edit-category-select").value = task.tag;
 
+        // Inicializa los nuevos campos de recordatorio
+        document.getElementById("edit-reminder-time").value = task.reminderTime || "";
+        document.getElementById("edit-reminder-message").value = task.reminderMessage || "";
+
+        // Muestra el modal
         document.getElementById("edit-task-modal").classList.add("visible");
+    } else {
+        console.error("Tarea no encontrada para editar.");
     }
 }
+
 
 function closeEditModal() {
     document.getElementById("edit-task-modal").classList.remove("visible");
@@ -152,18 +210,25 @@ function saveTaskChanges() {
     const task = tasks.find(t => t.id === editingTaskId);
     if (task) {
         task.title = document.getElementById("edit-task-title").value;
-        task.description = document.getElementById("edit-task-desc").value;
+        task.description = document.getElementById("edit-task-desc").value || "Sin descripción";
         task.priority = document.getElementById("edit-priority-select").value;
         task.tag = document.getElementById("edit-category-select").value;
-        
-        saveTasksToLocalStorage(); // Actualiza localStorage después de editar
+        const reminderTimeInput = document.getElementById("edit-reminder-time").value;
+        const reminderMessageInput = document.getElementById("edit-reminder-message").value;
+
+        task.reminderTime = reminderTimeInput || null; 
+        task.reminderMessage = reminderMessageInput || null; 
+
+        saveTasksToLocalStorage();
         renderTasks();
         updateOverallProgress();
+        if (task.reminderTime) {
+            scheduleTaskReminder(task);
+        }
 
-        // Alerta para tarea editada
         Swal.fire({
-            title: "Tarea Editada!",
-            text: "La tarea se editó con éxito. ¡Pulsa OK para continuar!",
+            title: "Tarea Editada",
+            text: "La tarea se actualizó con éxito.",
             icon: "success"
         });
     }
@@ -173,18 +238,9 @@ function saveTaskChanges() {
 function updateTaskPriority(id, newPriority) {
     const task = tasks.find(t => t.id === id);
     if (task) {
-        task.priority = newPriority;
-        saveTasksToLocalStorage(); // Guarda el cambio de prioridad en localStorage
-        renderTasks();
-    }
-}
-
-function updateTaskPriority(id, newPriority) {
-    const task = tasks.find(t => t.id === id);
-    if (task) {
-        task.priority = newPriority;
-        saveTasksToLocalStorage(); // Guarda el cambio de prioridad en localStorage
-        renderTasks();
+        task.priority = newPriority; // Actualiza la prioridad
+        saveTasksToLocalStorage(); // Guarda los cambios en localStorage
+        renderTasks(); // Re-renderiza todas las tareas para reflejar el cambio
     }
 }
 
