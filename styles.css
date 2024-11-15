@@ -72,6 +72,25 @@
     z-index: 1;
 }
 
+@media (max-width: 768px ) {
+    .header {
+        flex-direction: column; /* Cambia los elementos de fila a columna */
+        align-items: center;    /* Centra los elementos horizontalmente */
+        text-align: center;     /* Centra el texto dentro de los elementos */
+        padding: 10px;          /* Ajusta el relleno para pantallas pequeñas */
+    }
+    .header h1 {
+        margin-bottom: 10px;    /* Espaciado entre el título y el párrafo */
+    }
+    .header p {
+        margin-bottom: 20px;    /* Espaciado entre el párrafo y el interruptor */
+    }
+    .theme-switch {
+        margin-left: 100px;              /* Asegura que el interruptor esté bien alineado */
+    }
+}
+
+
 body{
     background-color: var(--body-color-1);
 }
@@ -85,6 +104,12 @@ body{
     margin-top: 150px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px ) {
+    .task-form{
+        margin-top: 200px;
+    }
 }
 
 .theme-switch {
@@ -223,6 +248,20 @@ body{
     border-radius: 10px;
     overflow-y: auto;
     border: 2px solid var(--body-color-5);
+}
+
+@media (max-width: 768px) {
+    .task-container {
+        flex-direction: column; 
+        gap: 20px;              
+        height: auto;
+        margin-right: 20px;          
+    }
+
+    .priority-column {
+        width: 100%;           
+        margin: 0 auto;         
+    }
 }
 
 #column-alta {
@@ -367,7 +406,7 @@ body{
     right: 10px;
     font-size: 1.2rem;
     cursor: pointer;
-    color: var(--fuente-color-);
+    color: var(--fuente-color-3);
 }
 
 .modal.visible {
@@ -431,7 +470,7 @@ body{
 
 .tarjeta-tarea select, 
 .tarjeta-tarea button{
-    width: 15%;
+
     font-size: 15px;
     border-radius: 5px;
     background-color: var(--body-color-3);
@@ -440,6 +479,7 @@ body{
     font-family: var(--fuente-3);
     cursor: pointer;
 }
+
 
 
 .tarjeta-tarea select option {
