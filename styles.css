@@ -298,3 +298,15 @@ body{
 
 }
 
+
+footer {
+    font-family: var(--fuente-3);
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    text-align: center;
+    padding: 5px;
+}
+
+.signo-footer{
+    color: var(--body-color-11);
+}
