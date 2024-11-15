@@ -419,6 +419,50 @@ body{
 
 }
 
+.tarjeta-tarea input{
+    font-size: 15px;
+    border-radius: 5px;
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    border: none;
+    font-family: var(--fuente-3);
+    cursor: pointer;
+}
+
+.tarjeta-tarea select, 
+.tarjeta-tarea button{
+    width: 15%;
+    font-size: 15px;
+    border-radius: 5px;
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+    border: none;
+    font-family: var(--fuente-3);
+    cursor: pointer;
+}
+
+
+.tarjeta-tarea select option {
+    background-color: var(--body-color-3);
+    color: var(--fuente-color-2);
+}
+
+.tarjeta-tarea select option:hover {
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-1);
+    cursor: pointer;
+}
+
+.tarjeta-tarea button{
+    background-color: var(--body-color-2);
+}
+.tarjeta-tarea button:hover{
+    cursor: pointer;
+    background-color: var(--header-color-2);
+    color: var(--fuente-color-3);
+}
+
+
 
 footer {
     font-family: var(--fuente-4);
@@ -431,3 +475,4 @@ footer {
 .signo-footer{
     color: var(--body-color-11);
 }
+

@@ -128,16 +128,18 @@ function renderTask(task) {
         <p>${task.description}</p>
         <p><strong>Categoría:</strong> ${task.tag}</p>
         <p><strong>Status:</strong> <span onclick="toggleComplete(${task.id})">${task.completed ? "Completada" : "Pendiente"}</span></p>
-        <input type="number" min="0" max="100" value="${task.progress}" 
-               onchange="updateTaskProgress(${task.id}, this.value)" 
-               placeholder="Progreso %" />
-        <select onchange="updateTaskPriority(${task.id}, this.value)">
-            <option value="alta" ${task.priority === "alta" ? "selected" : ""}>Alta</option>
-            <option value="media" ${task.priority === "media" ? "selected" : ""}>Media</option>
-            <option value="baja" ${task.priority === "baja" ? "selected" : ""}>Baja</option>
-        </select>
-        <button onclick="openEditModal(${task.id})">Editar</button>
-        <button onclick="deleteTask(${task.id})">Eliminar</button>
+        <div class="tarjeta-tarea">
+            <input type="number" min="0" max="100" value="${task.progress}" 
+                onchange="updateTaskProgress(${task.id}, this.value)" 
+                placeholder="Progreso %" />
+            <select onchange="updateTaskPriority(${task.id}, this.value)">
+                <option value="alta" ${task.priority === "alta" ? "selected" : ""}>Alta</option>
+                <option value="media" ${task.priority === "media" ? "selected" : ""}>Media</option>
+                <option value="baja" ${task.priority === "baja" ? "selected" : ""}>Baja</option>
+            </select>
+            <button onclick="openEditModal(${task.id})">Editar</button>
+            <button onclick="deleteTask(${task.id})">Eliminar</button>
+        </div>  
         <div class="progress-bar">
             <div class="progress-bar-inner" style="width: ${task.progress}%;">
                 <span class="progress-percentage">${task.progress}%</span>
