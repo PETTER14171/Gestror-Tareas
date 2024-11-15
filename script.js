@@ -1,4 +1,4 @@
-let tasks = [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || []; 
 let editingTaskId = null;
 
 const progressDisplay = document.getElementById("progress");
@@ -13,6 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
+
+function saveTasksToLocalStorage() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
 function addTask() {
     const taskInput = document.getElementById("task-input");
@@ -149,17 +153,28 @@ function saveTaskChanges() {
         task.description = document.getElementById("edit-task-desc").value;
         task.priority = document.getElementById("edit-priority-select").value;
         task.tag = document.getElementById("edit-category-select").value;
+        
+        saveTasksToLocalStorage(); // Actualiza localStorage después de editar
         renderTasks();
         updateOverallProgress();
 
         // Alerta para tarea editada
         Swal.fire({
             title: "Tarea Editada!",
-            text: "La tarea se edito con exito pulsa ok para continuar!",
+            text: "La tarea se editó con éxito. ¡Pulsa OK para continuar!",
             icon: "success"
-          });
+        });
     }
     closeEditModal();
+}
+
+function updateTaskPriority(id, newPriority) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.priority = newPriority;
+        saveTasksToLocalStorage(); // Guarda el cambio de prioridad en localStorage
+        renderTasks();
+    }
 }
 
 function updateTaskPriority(id, newPriority) {
