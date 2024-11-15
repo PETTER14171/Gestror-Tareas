@@ -87,9 +87,81 @@ body{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.theme-switch{
-    margin-right: 80px;
+.theme-switch {
+    margin-right: 100px;   
 }
+
+.theme-switch input {
+    display: none;
+}
+
+.display {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-switch label {
+    border: solid;
+    width: 85px;
+    height: 25px;
+    border-radius: 999px;
+    background-color: #cecece;
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.05) inset;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.circle {
+    width: 25px;
+    height: 25px;
+    border-radius: 999px;
+    background-color: white;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.05),
+                10px 10px 30px rgba(0, 0, 0, 0.05) inset;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translate(0, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.theme-switch svg {
+    width: 20px;
+    position: absolute;
+    transition: all 0.3s ease;
+}
+
+.sun {
+    color: #e9c201;
+    opacity: 1;
+}
+
+.moon {
+    color: black;
+    opacity: 0;
+}
+
+.theme-switch input[type=checkbox]:checked + .display label .circle {
+    left: 70%; /* Ajusta la posición final */
+}
+
+.theme-switch input[type=checkbox]:checked + .display label .sun {
+    opacity: 0;
+}
+
+.theme-switch input[type=checkbox]:checked + .display label .moon {
+    opacity: 1;
+}
+
+
+
+
 
 .task-form input,
 .task-form select,
@@ -295,7 +367,7 @@ body{
     right: 10px;
     font-size: 1.2rem;
     cursor: pointer;
-    color: var(--fuente-color-3);
+    color: var(--fuente-color-);
 }
 
 .modal.visible {
