@@ -38,9 +38,7 @@
 <h2>Despliegue</h2>
 <p>El proyecto está disponible en línea a través de <a href="https://github.com/USERNAME/REPO_NAME" target="_blank">GitHub Pages</a>.</p>
 </main>
-<footer>
-<p>&copy; 2024 Gestor de Tareas. Todos los derechos reservados.</p>
-</footer>
-</body>
-</html>
+            <footer>
+            <p>&copy; 2024 Gestor de Tareas. Todos los derechos reservados.</p>
+            </footer>
 
