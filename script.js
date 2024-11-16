@@ -5,10 +5,14 @@ const progressDisplay = document.getElementById("progress");
 
 // Verifica el tema en localStorage al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        document.getElementById("theme-toggle").checked = savedTheme === "dark";
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                console.log("Permiso para notificaciones concedido.");
+            } else {
+                console.log("Permiso para notificaciones denegado.");
+            }
+        });
     }
 });
 
