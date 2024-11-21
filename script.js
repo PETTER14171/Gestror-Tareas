@@ -3,93 +3,32 @@ let editingTaskId = null;
 
 const progressDisplay = document.getElementById("progress");
 
-// Verifica el tema en localStorage al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
+    // Inicializar OneSignal si está disponible
+    if (window.OneSignal) {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function (OneSignal) {
+            await OneSignal.init({
+                appId: "90504203-c0f7-4e55-9e5b-c4ddc05f4f51", // Tu App ID
+                notifyButton: { enable: true }
+            });
+        });
+    }
+
+    // Pedir permiso de notificaciones locales (fallback)
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Permiso para notificaciones concedido.");
-            } else {
-                console.log("Permiso para notificaciones denegado.");
-            }
+            console.log(`Permiso para notificaciones: ${permission}`);
         });
     }
+
+    // Configurar recordatorios de tareas
+    tasks.forEach(task => {
+        if (!task.completed && task.reminderTime) {
+            scheduleTaskReminder(task);
+        }
+    });
 });
-
-
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-        .register("service-worker.js")
-        .then(registration => {
-            console.log("Service Worker registrado con éxito:", registration);
-
-            // Configurar Push Manager
-            if ("PushManager" in window) {
-                registration.pushManager.getSubscription().then(subscription => {
-                    if (!subscription) {
-                        return subscribeUser(registration);
-                    } else {
-                        console.log("Ya estás suscrito a las notificaciones:", subscription);
-                    }
-                });
-            }
-        })
-        .catch(error => console.error("Error al registrar el Service Worker:", error));
-}
-
-function subscribeUser(registration) {
-    const publicKey = "TU_CLAVE_PUBLICA_VAPID";
-    const convertedVapidKey = urlBase64ToUint8Array(publicKey);
-
-    return registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey
-    }).then(subscription => {
-        console.log("Nueva suscripción a notificaciones:", subscription);
-        // Enviar la suscripción al servidor (si tienes uno)
-        return subscription;
-    }).catch(error => {
-        console.error("Error al suscribirse a las notificaciones:", error);
-    });
-}
-
-function urlBase64ToUint8Array(base64String) {
-    const padding = "=".repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-    const rawData = window.atob(base64);
-    return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
-}
-
-
-function simulatePushNotification(task) {
-    navigator.serviceWorker.ready.then(registration => {
-        const options = {
-            title: "Recordatorio de Tarea",
-            body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
-            icon: "img/icon.jpg",
-            data: {
-                url: "/" // URL asociada
-            }
-        };
-
-        registration.showNotification(options.title, {
-            body: options.body,
-            icon: options.icon,
-            data: options.data
-        });
-    });
-}
-
-function sendTaskNotification(task) {
-    if (Notification.permission === "granted") {
-        simulatePushNotification(task); // Simulación de envío de notificación push
-    } else {
-        console.warn("Permiso para notificaciones no concedido.");
-    }
-}
-
-
-
 
 tasks.forEach(task => {
     if (!task.completed && task.reminderTime) {
@@ -114,18 +53,35 @@ function scheduleTaskReminder(task) {
     if (timeUntilReminder > 0) {
         setTimeout(() => {
             if (!task.completed) {
-                sendTaskNotification(task);
+                sendTaskNotification(task); // Llama a la nueva función de notificación
             }
         }, timeUntilReminder);
     }
 }
 
 function sendTaskNotification(task) {
-    if (Notification.permission === 'granted') {
-        new Notification('Recordatorio de Tarea', {
-            body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
-            icon: 'img/icon.jpg' // Cambia a la ruta de tu ícono
-        });
+    if (window.OneSignal) {
+        // Usar OneSignal para enviar notificaciones push
+        OneSignal.sendSelfNotification(
+            'Recordatorio de Tarea',
+            task.reminderMessage || `Tarea pendiente: ${task.title}`,
+            '/', // URL que se abrirá al hacer clic en la notificación
+            null, // No se requiere datos adicionales
+            {
+                icon: 'img/icon.jpg', // Ícono de la notificación
+                actionButtons: [
+                    { id: 'view', text: 'Ver Tarea', icon: 'img/icon.jpg' }
+                ]
+            }
+        );
+    } else {
+        // Fallback a notificaciones locales
+        if (Notification.permission === 'granted') {
+            new Notification('Recordatorio de Tarea', {
+                body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
+                icon: 'img/icon.jpg' // Cambia a la ruta de tu ícono
+            });
+        }
     }
 }
 
