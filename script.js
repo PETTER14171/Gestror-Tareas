@@ -61,26 +61,28 @@ function scheduleTaskReminder(task) {
 
 function sendTaskNotification(task) {
     if (window.OneSignal) {
-        // Usar OneSignal para enviar notificaciones push
-        OneSignal.sendSelfNotification(
-            'Recordatorio de Tarea',
-            task.reminderMessage || `Tarea pendiente: ${task.title}`,
-            '/', // URL que se abrirá al hacer clic en la notificación
-            null, // No se requiere datos adicionales
-            {
-                icon: 'img/icon.jpg', // Ícono de la notificación
-                actionButtons: [
-                    { id: 'view', text: 'Ver Tarea', icon: 'img/icon.jpg' }
-                ]
+        console.log("OneSignal está disponible. Se puede enviar una notificación desde el backend configurado.");
+
+        // Comprueba si el usuario está suscrito
+        OneSignal.isPushNotificationsEnabled(isEnabled => {
+            if (isEnabled) {
+                console.log("El usuario está suscrito a las notificaciones push.");
+                // Si el backend está configurado, la notificación se debe enviar desde allí.
+            } else {
+                console.warn("El usuario NO está suscrito a las notificaciones push.");
             }
-        );
+        });
     } else {
+        console.warn("OneSignal no está inicializado. Usando fallback de notificaciones locales.");
+
         // Fallback a notificaciones locales
         if (Notification.permission === 'granted') {
             new Notification('Recordatorio de Tarea', {
                 body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
                 icon: 'img/icon.jpg' // Cambia a la ruta de tu ícono
             });
+        } else {
+            console.warn("Permiso de notificación no concedido.");
         }
     }
 }
