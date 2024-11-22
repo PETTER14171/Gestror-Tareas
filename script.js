@@ -14,6 +14,24 @@ if ("serviceWorker" in navigator) {
 
 // Pedir permisos de notificación
 document.addEventListener("DOMContentLoaded", () => {
+    // Configurar el tema inicial
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
+    // Vincular el interruptor de tema
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+        themeToggle.addEventListener("change", toggleTheme);
+    }
+
+    // Configurar recordatorios de tareas
+    tasks.forEach(task => {
+        if (!task.completed && task.reminderTime) {
+            scheduleTaskReminder(task);
+        }
+    });
+
+    // Configurar permisos de notificaciones
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
@@ -23,14 +41,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // Configurar recordatorios de tareas
-    tasks.forEach(task => {
-        if (!task.completed && task.reminderTime) {
-            scheduleTaskReminder(task);
-        }
-    });
 });
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+}
+
 
 // Guardar tareas en localStorage
 function saveTasksToLocalStorage() {
