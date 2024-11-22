@@ -1,24 +1,26 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || []; 
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let editingTaskId = null;
 
 const progressDisplay = document.getElementById("progress");
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Inicializar OneSignal si está disponible
-    if (window.OneSignal) {
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function (OneSignal) {
-            await OneSignal.init({
-                appId: "90504203-c0f7-4e55-9e5b-c4ddc05f4f51", // Tu App ID
-                notifyButton: { enable: true }
-            });
-        });
-    }
+// Registrar el Service Worker
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js").then(registration => {
+        console.log("Service Worker registrado con éxito:", registration);
+    }).catch(error => {
+        console.error("Error al registrar el Service Worker:", error);
+    });
+}
 
-    // Pedir permiso de notificaciones locales (fallback)
+// Pedir permisos de notificación
+document.addEventListener("DOMContentLoaded", () => {
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
-            console.log(`Permiso para notificaciones: ${permission}`);
+            if (permission === "granted") {
+                console.log("Permiso de notificaciones concedido.");
+            } else {
+                console.warn("Permiso de notificaciones denegado.");
+            }
         });
     }
 
@@ -30,19 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-tasks.forEach(task => {
-    if (!task.completed && task.reminderTime) {
-        scheduleTaskReminder(task);
-    }
-});
-
-
-document.getElementById("theme-toggle").addEventListener("change", toggleTheme);
-
+// Guardar tareas en localStorage
 function saveTasksToLocalStorage() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+// Programar recordatorios de tareas
 function scheduleTaskReminder(task) {
     const now = new Date();
     const [hours, minutes] = task.reminderTime.split(":").map(Number);
@@ -53,40 +48,33 @@ function scheduleTaskReminder(task) {
     if (timeUntilReminder > 0) {
         setTimeout(() => {
             if (!task.completed) {
-                sendTaskNotification(task); // Llama a la nueva función de notificación
+                sendTaskNotification(task); // Llama a la función para enviar la notificación
             }
         }, timeUntilReminder);
     }
 }
 
+// Enviar notificaciones push
 function sendTaskNotification(task) {
-    if (window.OneSignal) {
-        console.log("OneSignal está disponible. Se puede enviar una notificación desde el backend configurado.");
-
-        // Comprueba si el usuario está suscrito
-        OneSignal.isPushNotificationsEnabled(isEnabled => {
-            if (isEnabled) {
-                console.log("El usuario está suscrito a las notificaciones push.");
-                // Si el backend está configurado, la notificación se debe enviar desde allí.
-            } else {
-                console.warn("El usuario NO está suscrito a las notificaciones push.");
-            }
+    if (Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(`Recordatorio: ${task.title}`, {
+                body: task.reminderMessage || "No olvides completar esta tarea.",
+                icon: "img/icon.jpg", // Cambia a la ruta de tu ícono
+                data: { url: "https://mi-aplicacion.com/tareas" }, // URL al hacer clic en la notificación
+                vibrate: [200, 100, 200],
+                actions: [
+                    { action: "complete", title: "Marcar como completada" },
+                    { action: "view", title: "Ver tarea" }
+                ]
+            });
         });
     } else {
-        console.warn("OneSignal no está inicializado. Usando fallback de notificaciones locales.");
-
-        // Fallback a notificaciones locales
-        if (Notification.permission === 'granted') {
-            new Notification('Recordatorio de Tarea', {
-                body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
-                icon: 'img/icon.jpg' // Cambia a la ruta de tu ícono
-            });
-        } else {
-            console.warn("Permiso de notificación no concedido.");
-        }
+        console.warn("Permiso de notificación no concedido.");
     }
 }
 
+// Funciones principales
 function addTask() {
     const taskInput = document.getElementById("task-input");
     const taskDesc = document.getElementById("task-desc");
@@ -107,13 +95,13 @@ function addTask() {
     const task = {
         id: Date.now(),
         title: taskInput.value,
-        description: taskDesc.value || "Sin descripción", // Descripción opcional
+        description: taskDesc.value || "Sin descripción",
         priority: prioritySelect.value,
         tag: tagSelect.value,
         completed: false,
         progress: 0,
-        reminderTime: reminderTimeInput.value || null, // Hora opcional
-        reminderMessage: reminderMessageInput.value || null // Mensaje opcional
+        reminderTime: reminderTimeInput.value || null,
+        reminderMessage: reminderMessageInput.value || null
     };
 
     tasks.push(task);
@@ -178,9 +166,7 @@ function renderTask(task) {
             <button onclick="deleteTask(${task.id})">Eliminar</button>
         </div>  
         <div class="progress-bar">
-            <div class="progress-bar-inner" style="width: ${task.progress}%;">
-                <span class="progress-percentage">${task.progress}%</span>
-            </div>
+            <div class="progress-bar-inner" style="width: ${task.progress}%;"></div>
         </div>
     `;
 
