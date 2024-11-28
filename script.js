@@ -79,8 +79,8 @@ function sendTaskNotification(task) {
         navigator.serviceWorker.ready.then(registration => {
             registration.showNotification(`Recordatorio: ${task.title}`, {
                 body: task.reminderMessage || "No olvides completar esta tarea.",
-                icon: "img/icon.jpg", // Cambia a la ruta de tu ícono
-                data: { url: "https://gestor-tareas.cryptoguardstudio.com/" },
+                icon: "img/icon.jpg", 
+                data: "https://gestor-tareas.cryptoguardstudio.com/",
                 vibrate: [200, 100, 200],
                 actions: [
                     { action: "complete", title: "Marcar como completada" },

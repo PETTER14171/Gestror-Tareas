@@ -1,15 +1,17 @@
-self.addEventListener('push', function(event) {
-    const data = event.data.json(); // Recibe datos del servidor o cliente
-    self.registration.showNotification(data.title, {
-        body: data.body,
-        icon: data.icon || 'img/icon.jpg',
-        data: data.url 
-    });
-});
-
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close(); // Cierra la notificación
-    if (event.notification.data) {
-        clients.openWindow(event.notification.data); 
-    }
+self.addEventListener("notificationclick", event => {
+    event.notification.close();
+    
+    event.waitUntil(
+        clients.matchAll({ type: "window" }).then(clientList => {
+            const url = event.notification.data; 
+            for (const client of clientList) {
+                if (client.url === url && "focus" in client) {
+                    return client.focus(); 
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(url); 
+            }
+        })
+    );
 });
