@@ -83,7 +83,6 @@ function sendTaskNotification(task) {
                 data: "https://gestor-tareas.cryptoguardstudio.com/",
                 vibrate: [200, 100, 200],
                 actions: [
-                    { action: "complete", title: "Marcar como completada" },
                     { action: "view", title: "Ver tarea" }
                 ]
             });
