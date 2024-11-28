@@ -82,7 +82,7 @@ function sendTaskNotification(task) {
                 icon: "img/icon.jpg", 
                 data: "https://gestor-tareas.cryptoguardstudio.com/",
                 vibrate: [200, 100, 200],
-                actions: { action: "view", title: "Ver tarea" }
+                actions: [{ action: "view", title: "Ver tarea" }]
             });
         });
     } else {
