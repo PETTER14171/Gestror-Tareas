@@ -80,7 +80,7 @@ function sendTaskNotification(task) {
             registration.showNotification(`Recordatorio: ${task.title}`, {
                 body: task.reminderMessage || "No olvides completar esta tarea.",
                 icon: "img/icon.jpg", // Cambia a la ruta de tu ícono
-                data: { url: "https://mi-aplicacion.com/tareas" }, // URL al hacer clic en la notificación
+                data: { url: "https://gestor-tareas.cryptoguardstudio.com/" },
                 vibrate: [200, 100, 200],
                 actions: [
                     { action: "complete", title: "Marcar como completada" },

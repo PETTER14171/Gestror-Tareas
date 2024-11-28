@@ -3,13 +3,13 @@ self.addEventListener('push', function(event) {
     self.registration.showNotification(data.title, {
         body: data.body,
         icon: data.icon || 'img/icon.jpg',
-        data: data.url // URL a la que redirigir al hacer clic
+        data: data.url 
     });
 });
 
 self.addEventListener('notificationclick', function(event) {
     event.notification.close(); // Cierra la notificación
     if (event.notification.data) {
-        clients.openWindow(event.notification.data); // Abre la URL proporcionada
+        clients.openWindow(event.notification.data); 
     }
 });
