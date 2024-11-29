@@ -45,7 +45,81 @@ function saveTasksToLocalStorage() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-            <footer>
-            <p>&copy; 2024 Gestor de Tareas. Todos los derechos reservados.</p>
-            </footer>
+- Guarda las tareas creadas por el usuario en el navegador.
+-Recupera los datos al cargar la página:
+
+```javascript
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+### **2. Notificaciones personalizadas**
+Las notificaciones de recordatorio se implementan con la API de Notificaciones de JavaScript:
+
+```javascript
+function sendTaskNotification(task) {
+    if (Notification.permission === 'granted') {
+        new Notification('Recordatorio de Tarea', {
+            body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
+            icon: 'img/icon.jpg'
+        });
+    }
+}
+
+-Requiere permisos: Se solicita permiso al cargar la página.
+-Programación de recordatorios: Se usa setTimeout para programar notificaciones en el momento exacto definido por el usuario:
+
+```javascript
+function scheduleTaskReminder(task) {
+    const reminderDate = new Date(/* parámetros de hora del recordatorio */);
+    setTimeout(() => sendTaskNotification(task), reminderDate - Date.now());
+}
+
+### **3. Interfaz dinámica**
+Las tareas se renderizan dinámicamente según su prioridad:
+
+```javascript
+function renderTasks() {
+    tasks.forEach(task => renderTask(task));
+}
+
+Cada tarea es un objeto con propiedades como:
+-title, description, priority, tag, progress, reminderTime, etc.
+
+### **4. Interacción con el usuario**
+-SweetAlert2: Mejora la interacción con mensajes visuales, como la confirmación al agregar o eliminar tareas:
+
+```javascript
+Swal.fire({
+    title: "Tarea Agregada",
+    text: "La tarea se agregó con éxito.",
+    icon: "success"
+});
+
+
+### **5. Modo Oscuro**
+El modo oscuro se implementa con un toggle que actualiza los estilos y guarda la preferencia en localStorage:
+
+```javascript
+function toggleTheme() {
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+}
+
+## 🚀 **Desarrollo y aprendizaje**
+
+El desarrollo de esta aplicación incluyó:
+
+-Diseño de UI: Creación de una interfaz intuitiva y responsiva.
+-Persistencia: Uso de localStorage para mantener los datos después de cerrar el navegador.
+-Notificaciones: Implementación de recordatorios con la API de Notificaciones.
+-Optimización: Debugging y corrección de errores para asegurar la funcionalidad en diferentes navegadores y dispositivos.
+-Colaboración en GitHub: Uso de control de versiones y despliegue en GitHub Pages.
+-Gracias por explorar este proyecto. Si tienes sugerencias o encuentras errores, no dudes en abrir un issue en el repositorio. 🎉
+
+
+
+
+                                                      <footer>
+                                                      <p>&copy; 2024 Gestor de Tareas. Todos los derechos reservados.</p>
+                                                      </footer>
 
