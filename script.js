@@ -1,16 +1,7 @@
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let editingTaskId = null;
-
 const progressDisplay = document.getElementById("progress");
 
-// Registrar el Service Worker
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js").then(registration => {
-        console.log("Service Worker registrado con éxito:", registration);
-    }).catch(error => {
-        console.error("Error al registrar el Service Worker:", error);
-    });
-}
 
 // Pedir permisos de notificación
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,6 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
             scheduleTaskReminder(task);
         }
     });
+
+        // Registrar el Service Worker
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js").then(registration => {
+            console.log("Service Worker registrado con éxito:", registration);
+        }).catch(error => {
+            console.error("Error al registrar el Service Worker:", error);
+        });
+    }
+
 
     // Configurar permisos de notificaciones
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -67,7 +68,7 @@ function scheduleTaskReminder(task) {
     if (timeUntilReminder > 0) {
         setTimeout(() => {
             if (!task.completed) {
-                sendTaskNotification(task); // Llama a la función para enviar la notificación
+                sendTaskNotification(task);
             }
         }, timeUntilReminder);
     }
@@ -89,6 +90,9 @@ function sendTaskNotification(task) {
         console.warn("Permiso de notificación no concedido.");
     }
 }
+
+
+
 
 // Funciones principales
 function addTask() {
