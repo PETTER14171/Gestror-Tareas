@@ -35,7 +35,7 @@
 
 ## 🛠️ **Desarrollo del código**
 
-El proyecto utiliza tecnologías web modernas: **HTML**, **CSS** y **JavaScript**. Se enfoca en la persistencia de datos mediante `localStorage` y la interacción del usuario con notificaciones.
+El proyecto utiliza tecnologías web basicas: **HTML**, **CSS** y **JavaScript**. Se enfoca en la persistencia de datos mediante `localStorage` y la interacción del usuario con notificaciones.
 
 ### **Funciones principales del código**
 
@@ -58,31 +58,46 @@ Las notificaciones de recordatorio se implementan con la API de Notificaciones d
 
 ```javascript
 function sendTaskNotification(task) {
-    if (Notification.permission === 'granted') {
-        new Notification('Recordatorio de Tarea', {
-            body: task.reminderMessage || `Tarea pendiente: ${task.title}`,
-            icon: 'img/icon.jpg'
+    if (Notification.permission === "granted") {
+        navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification(`Recordatorio: ${task.title}`, {
+                body: task.reminderMessage || "No olvides completar esta tarea.",
+                icon: "img/icon.jpg", 
+                data: "https://gestor-tareas.cryptoguardstudio.com/",
+                vibrate: [200, 100, 200],
+                actions: [{ action: "view", title: "Ver tarea" }]
+            });
         });
+    } else {
+        console.warn("Permiso de notificación no concedido.");
     }
 }
-```
 
--Requiere permisos: Se solicita permiso al cargar la página.
--Programación de recordatorios: Se usa setTimeout para programar notificaciones en el momento exacto definido por el usuario:
-
-```javascript
-function scheduleTaskReminder(task) {
-    const reminderDate = new Date(/* parámetros de hora del recordatorio */);
-    setTimeout(() => sendTaskNotification(task), reminderDate - Date.now());
-}
 ```
 
 ### **3. Interfaz dinámica**
 Las tareas se renderizan dinámicamente según su prioridad:
 
 ```javascript
-function renderTasks() {
-    tasks.forEach(task => renderTask(task));
+function renderTasks(filter = "all") {
+document.getElementById("column-alta").innerHTML = "<h2>Prioridad Alta</h2>";
+document.getElementById("column-media").innerHTML = "<h2>Prioridad Media</h2>";
+document.getElementById("column-baja").innerHTML = "<h2>Prioridad Baja</h2>";
+
+tasks.filter(task => filter === "all" || task.tag === filter).forEach(task => renderTask(task));
+}
+
+function renderTask(task) {
+let taskItem = document.getElementById(`task-${task.id}`);
+if (!taskItem) {
+  taskItem = document.createElement("div");
+  taskItem.id = `task-${task.id}`;
+  taskItem.classList.add("task-item", `priority-${task.priority}`);
+  
+  taskItem.setAttribute("draggable", true);
+  taskItem.addEventListener("dragstart", (e) => onDragStart(e, task));
+  taskItem.addEventListener("dragover", (e) => onDragOver(e));
+  taskItem.addEventListener("drop", (e) => onDrop(e, task));
 }
 ```
 
@@ -105,10 +120,167 @@ El modo oscuro se implementa con un toggle que actualiza los estilos y guarda la
 
 ```javascript
 function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
     const newTheme = currentTheme === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
 }
+```
+
+### **6. Agregar tarea**
+
+```javascript
+function addTask() {
+    const taskInput = document.getElementById("task-input");
+    const taskDesc = document.getElementById("task-desc");
+    const prioritySelect = document.getElementById("priority-select");
+    const tagSelect = document.getElementById("tag-select");
+    const reminderTimeInput = document.getElementById("reminder-time");
+    const reminderMessageInput = document.getElementById("reminder-message");
+
+    if (taskInput.value === "") {
+        Swal.fire({
+            title: "Error",
+            text: "El título de la tarea es obligatorio.",
+            icon: "error"
+        });
+        return;
+    }
+
+    const task = {
+        id: Date.now(),
+        title: taskInput.value,
+        description: taskDesc.value || "Sin descripción",
+        priority: prioritySelect.value,
+        tag: tagSelect.value,
+        completed: false,
+        progress: 0,
+        reminderTime: reminderTimeInput.value || null,
+        reminderMessage: reminderMessageInput.value || null
+    };
+
+    tasks.push(task);
+    saveTasksToLocalStorage();
+    renderTasks();
+    updateOverallProgress();
+
+    taskInput.value = "";
+    taskDesc.value = "";
+    reminderTimeInput.value = "";
+    reminderMessageInput.value = "";
+
+    Swal.fire({
+        title: "Tarea Agregada",
+        text: "La tarea se agregó con éxito.",
+        icon: "success"
+    });
+
+    if (task.reminderTime) {
+        scheduleTaskReminder(task);
+    }
+}
+```
+
+### **7. Eliminar tarea**
+
+```javascript
+function deleteTask(id) {
+    Swal.fire({
+        title: "¿Quieres eliminar la tarea?",
+        text: "Si eliminas esta tarea no podrás restaurarla",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminar!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasksToLocalStorage(); // Guarda el cambio después de eliminar
+            renderTasks();
+            updateOverallProgress();
+
+            Swal.fire({
+                title: "Eliminada!",
+                text: "La tarea se eliminó con éxito.",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+}
+```
+
+### **8. Editar tarea**
+
+```javascript
+function openEditModal(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        editingTaskId = id;
+
+        // Inicializa los campos existentes
+        document.getElementById("edit-task-title").value = task.title;
+        document.getElementById("edit-task-desc").value = task.description;
+        document.getElementById("edit-priority-select").value = task.priority;
+        document.getElementById("edit-category-select").value = task.tag;
+
+        // Inicializa los nuevos campos de recordatorio
+        document.getElementById("edit-reminder-time").value = task.reminderTime || "";
+        document.getElementById("edit-reminder-message").value = task.reminderMessage || "";
+
+        // Muestra el modal
+        document.getElementById("edit-task-modal").classList.add("visible");
+    } else {
+        console.error("Tarea no encontrada para editar.");
+    }
+}
+
+
+function closeEditModal() {
+    document.getElementById("edit-task-modal").classList.remove("visible");
+    editingTaskId = null;
+}
+
+function saveTaskChanges() {
+    const task = tasks.find(t => t.id === editingTaskId);
+    if (task) {
+        task.title = document.getElementById("edit-task-title").value;
+        task.description = document.getElementById("edit-task-desc").value || "Sin descripción";
+        task.priority = document.getElementById("edit-priority-select").value;
+        task.tag = document.getElementById("edit-category-select").value;
+        const reminderTimeInput = document.getElementById("edit-reminder-time").value;
+        const reminderMessageInput = document.getElementById("edit-reminder-message").value;
+
+        task.reminderTime = reminderTimeInput || null; 
+        task.reminderMessage = reminderMessageInput || null; 
+
+        saveTasksToLocalStorage();
+        renderTasks();
+        updateOverallProgress();
+        if (task.reminderTime) {
+            scheduleTaskReminder(task);
+        }
+
+        Swal.fire({
+            title: "Tarea Editada",
+            text: "La tarea se actualizó con éxito.",
+            icon: "success"
+        });
+    }
+    closeEditModal();
+}
+
+function updateTaskPriority(id, newPriority) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.priority = newPriority; // Actualiza la prioridad
+        saveTasksToLocalStorage(); // Guarda los cambios en localStorage
+        renderTasks(); // Re-renderiza todas las tareas para reflejar el cambio
+    }
+}
+
 ```
 
 ## 🚀 **Desarrollo y aprendizaje**
@@ -122,7 +294,6 @@ El desarrollo de esta aplicación incluyó:
 - **5.Colaboración** en GitHub: Uso de control de versiones y despliegue en GitHub Pages.
 
 ## **Gracias por explorar este proyecto. Si tienes sugerencias o encuentras errores, no dudes en abrir un issue en el repositorio. 🎉**
-
 
 
 
